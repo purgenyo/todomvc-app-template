@@ -6,7 +6,7 @@
 	let todoList = new TodoList();
 
 
-	let result = queries.runQuery('GET', null, {})
+	queries.runQuery('GET', null, {})
 		.done((res)=>todoList.renderElement(res))
 		.fail((xhr, text)=>{ console.log(xhr, text) });
 
@@ -31,7 +31,6 @@
 		var view = element_root.children('.view');
 		edit.hide();
 		view.show();
-
 	});
 
 	$(document).on('click', '.todo-list li .view input', (e)=>{
@@ -40,6 +39,18 @@
 
 	$(document).on('click', '.todo-list li .view .destroy', (e)=>{
 		console.log('destroy');
+	});
+
+	$(document).on('keyup', '.new-todo', (el)=>{
+
+		if(el.keyCode===13){
+			return 1;
+			queries.runQuery('POST', null, {
+				'text': el.target.value
+			})
+				.done((res)=>todoList.renderElement(res))
+				.fail((xhr, text)=>{ console.log(xhr, text) });
+		}
 	});
 
 })(window);

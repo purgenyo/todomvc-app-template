@@ -3,7 +3,7 @@ class Queries {
 		return $.ajax({
 			method: method,
 			data: data,
-			url: "http://localhost:8082/todo/",
+			url: config.api_server + '/todo/',
 		});
 	}
 }
