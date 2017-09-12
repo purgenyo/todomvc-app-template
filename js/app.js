@@ -44,11 +44,10 @@
 	$(document).on('keyup', '.new-todo', (el)=>{
 
 		if(el.keyCode===13){
-			return 1;
-			queries.runQuery('POST', null, {
+			queries.runQuery('POST', {
 				'text': el.target.value
-			})
-				.done((res)=>todoList.renderElement(res))
+			}, {})
+				.done((res)=>todoList.renderElement( {data: [res.data]} ))
 				.fail((xhr, text)=>{ console.log(xhr, text) });
 		}
 	});
