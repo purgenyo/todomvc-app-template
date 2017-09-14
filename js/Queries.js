@@ -1,6 +1,14 @@
 class Queries {
 
-
+	/**
+	 * Формирует jquery ajax запрос
+	 *
+	 * @param http_method - Метод запроса
+	 * @param url - метод api
+	 * @param data - json данные
+	 * @param params - дополнительные параметры (header, и тд)
+     * @returns {*}
+     */
 	runQuery(http_method, url, data, params){
 		let request_params = params;
 		request_params.dataType = 'json';

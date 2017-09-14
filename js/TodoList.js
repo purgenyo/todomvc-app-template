@@ -7,8 +7,7 @@ Handlebars.registerHelper('if_eq', function(a, b, opts) {
 });
 
 class TodoList extends Queries{
-	
-	
+
 	getApiUrl(){
 		return config.todo_api_server + '/todo';
 	}
@@ -77,6 +76,16 @@ class TodoList extends Queries{
 			.fail((xhr, text)=>{ });
 	}
 
+	changeStatus(root_element){
+		let todo_id = root_element.data('todoid');
+		let status_new = 1;
+		if($(e.target).is(':checked')){
+			status_new = 2;
+		}
+		let data = { status: status_new }
+		this.todoChanged(todo_id, data);
+	}
+
 	setEvenets(){
 
 		/** Удаление готовых записей */
@@ -107,13 +116,7 @@ class TodoList extends Queries{
 		/** Изменение состояния статуса */
 		$(document).on('change', '.todo-list li .view input', (e)=>{
 			let root_element = $(e.target).parents('li');
-			let todo_id = root_element.data('todoid');
-			let status_new = 1;
-			if($(e.target).is(':checked')){
-				status_new = 2;
-			}
-			let data = { status: status_new }
-			this.todoChanged(todo_id, data);
+			this.changeStatus(root_element);
 		});
 
 		/** Удаление записи */
