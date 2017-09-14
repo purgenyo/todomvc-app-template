@@ -1,4 +1,6 @@
 class Queries {
+
+
 	runQuery(http_method, url, data, params){
 		let request_params = params;
 		request_params.dataType = 'json';

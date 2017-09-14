@@ -1,4 +1,5 @@
 class FilterEvenets {
+	
 	setEvenets(){
 		$('body').on('click', '.filters a', (e)=>{
 			$('.filters li a').removeClass('selected');
