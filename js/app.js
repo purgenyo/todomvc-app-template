@@ -1,9 +1,13 @@
 //TODO: Навести порядок
 
 (function (window) {
+
 	'use strict';
 	let queries = new Queries();
 	let todoList = new TodoList();
+	let filterEvents = new FilterEvenets();
+
+	filterEvents.setEvenets();
 
 	let api_url = config.todo_api_server + '/todo';
 	queries.runQuery('GET', api_url, null, {})
@@ -22,7 +26,6 @@
 		edit.show();
 		edit.focus();
 		view.hide();
-
 	});
 
 	$(document).on('keyup', '.edit', (e)=>{
@@ -43,7 +46,7 @@
 		edit.hide();
 		view.show();
 		let data = {text: edit.val()}
-		todoChanged(todo_id, data);
+		todoList.todoChanged(todo_id, data);
 	}
 
 	$(document).on('change', '.todo-list li .view input', (e)=>{
@@ -54,28 +57,12 @@
 		if($(e.target).is(':checked')){
 			status_new = 2;
 		}
-		let data = {status: status_new}
-		todoChanged(todo_id, data);
+		
+		let data = { status: status_new }
+		todoList.todoChanged(todo_id, data);
 	});
 
-	function todoChanged(todo_id, data){
-		let api_url = config.todo_api_server + '/todo/' + todo_id;
-		queries.runQuery('PUT', api_url, data, {})
-			.done((res)=>{
-				let li = $(`li[data-todoid='${todo_id}']`);
-				let edit = li.children('.edit');
-				let label = li.children('.view').children('label');
-				edit.val(res.data.text);
-				label.text(res.data.text);
-				if(res.data.status===1){
-					li.removeClass('completed');
-				} else {
-					li.addClass('completed');
-				}
 
-			})
-			.fail((xhr, text)=>{ console.log(xhr, text) });
-	}
 
 	$(document).on('click', '.todo-list li .view .destroy', (e)=>{
 		let root_element = $(e.target).parents('li');
@@ -110,4 +97,14 @@
 			});
 		}
 	});
+
+	$('#toggle-all').on('change', (e)=>{
+		let el = e.target;
+		if($(el).prop('checked')){
+			$('.todo-list li .toggle').prop('checked', true);
+		} else {
+			$('.todo-list li .toggle').prop('checked', false);
+		}
+		$('.todo-list li .toggle').change();
+	})
 })(window);

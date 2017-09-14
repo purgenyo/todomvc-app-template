@@ -14,19 +14,25 @@ class TodoList {
 		$('.todo-list').prepend( template(elementsArr) );
 	}
 
-	refreshElement(element_id, text, status){
+	todoChanged(todo_id, data){
+		let api_url = config.todo_api_server + '/todo/' + todo_id;
+		queries.runQuery('PUT', api_url, data, {})
+			.done((res)=>{
+				let li = $(`li[data-todoid='${todo_id}']`);
+				let edit = li.children('.edit');
+				let label = li.children('.view').children('label');
+				edit.val(res.data.text);
+				label.text(res.data.text);
+				if(res.data.status===1){
+					li.removeClass('completed');
+				} else {
+					li.addClass('completed');
+				}
 
+			})
+			.fail((xhr, text)=>{ console.log(xhr, text) });
 	}
 
-	changeElementStatus(element_id){
 
-	}
-
-	deleteElement(element_id){
-
-	}
-
-	changeEditableState( element_id ){
-
-	}
+	
 }
