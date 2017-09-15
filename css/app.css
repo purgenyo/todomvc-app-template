@@ -6,3 +6,24 @@ remove this comment if used
 remove this file if not
 
 */
+
+.errors {
+	color: red;
+	padding: 10px;
+}
+
+.data-auth-form label {
+	margin-right: auto;
+}
+
+.form-element {
+	margin: 20px;
+}
+
+.login_event {
+	margin: 10px;
+}
+
+.send_server {
+	margin: 10px;
+}

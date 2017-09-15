@@ -1,5 +1,5 @@
 Handlebars.registerHelper('if_eq', function(a, b, opts) {
-	if (a == b) {
+	if (a === b) {
 		return opts.fn(this);
 	} else {
 		return opts.inverse(this);
@@ -8,14 +8,32 @@ Handlebars.registerHelper('if_eq', function(a, b, opts) {
 
 class TodoList extends Queries{
 
+	setItemCount(itemCount){
+		$('.todo-count strong').html(itemCount);
+		this.itemCount = itemCount;
+	}
+
+	getItemCount(){
+		return this.itemCount;
+	}
+
 	getApiUrl(){
 		return config.todo_api_server + '/todo';
 	}
 
 	init(){
 		this.runQuery('GET', this.getApiUrl(), null, {})
-			.done((res)=>this.renderElement(res))
-			.fail((xhr, text)=>{ console.log(xhr, text) });
+			.done((res)=>{
+				let counts = 0;
+				for (let i in res.data){
+					if(res.data[i].status===2){
+						counts++;
+					}
+				}
+				this.setItemCount(counts);
+				this.renderElement(res)
+			})
+			.fail((xhr)=>{ErrorHandler.processByHttpStatusResponse(xhr.status)});
 	}
 
 	renderElement(elementsArr){
@@ -26,7 +44,7 @@ class TodoList extends Queries{
 
 	todoChanged(todo_id, data){
 
-		this.runQuery('PUT', this.getApiUrl(), data, {})
+		this.runQuery('PUT', this.getApiUrl() + '/' + todo_id, data, {})
 			.done((res)=>{
 				let li = $(`li[data-todoid='${todo_id}']`);
 				let edit = li.children('.edit');
@@ -40,7 +58,7 @@ class TodoList extends Queries{
 				}
 
 			})
-			.fail((xhr, text)=>{ console.log(xhr, text) });
+			.fail((xhr)=>{ErrorHandler.processByHttpStatusResponse(xhr.status)});
 	}
 
 	todoProcessEdit(element_root) {
@@ -68,19 +86,22 @@ class TodoList extends Queries{
 		$(element_root).children('.destroy').attr('disabled', true);
 		this.runQuery('DELETE', api_url, null, {})
 			.done((res)=>{
-
 				if(res.data===true){
+					this.setItemCount(this.getItemCount()-1);
 					element_root.remove();
 				}
 			})
-			.fail((xhr, text)=>{ });
+			.fail((xhr)=>{ErrorHandler.processByHttpStatusResponse(xhr.status)});
 	}
 
 	changeStatus(root_element){
 		let todo_id = root_element.data('todoid');
 		let status_new = 1;
-		if($(e.target).is(':checked')){
+		if($(root_element).children('.view').children('.toggle').is(':checked')){
 			status_new = 2;
+			this.setItemCount(this.getItemCount()+1);
+		} else {
+			this.setItemCount(this.getItemCount()-1);
 		}
 		let data = { status: status_new }
 		this.todoChanged(todo_id, data);
@@ -90,7 +111,14 @@ class TodoList extends Queries{
 
 		/** Удаление готовых записей */
 		$(document).on('click', '.clear-completed', (e)=>{
-
+			let for_delete = $('.todo-list .completed');
+			if(for_delete===0){
+				return false;
+			} else {
+				for(let i = for_delete.length-1; i >= 0; i--){
+					this.deleteElement($(for_delete[i]));
+				}
+			}
 		});
 
 		/** Двойной клик для редактирования */
@@ -130,9 +158,12 @@ class TodoList extends Queries{
 			let el = e.target;
 			if($(el).prop('checked')){
 				$('.todo-list li .toggle').prop('checked', true);
+				this.setItemCount(0);
 			} else {
 				$('.todo-list li .toggle').prop('checked', false);
+				this.setItemCount( $('.todo-list li').length );
 			}
+
 			$('.todo-list li .toggle').change();
 		});
 
@@ -151,6 +182,7 @@ class TodoList extends Queries{
 					})
 					.fail((xhr, text)=>{
 						$(el.target).attr('disabled', false);
+						ErrorHandler.processByHttpStatusResponse(xhr.status);
 					});
 			}
 		});
