@@ -24,6 +24,7 @@ class TodoList extends Queries{
 	init(){
 		this.runQuery('GET', this.getApiUrl(), null, {})
 			.done((res)=>{
+				$('.todoapp').show();
 				let counts = 0;
 				for (let i in res.data){
 					if(res.data[i].status===2){
